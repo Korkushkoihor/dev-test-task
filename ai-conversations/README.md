@@ -157,3 +157,46 @@ were not run because `uv`, Node/Bun, and PostgreSQL dependencies were
 unavailable in the current environment.
 
 Approximate implementation time: 10 minutes.
+
+## User
+
+lets add some frontend unit tests
+
+## Assistant
+
+I’ll add focused frontend tests around the access rules and direct-navigation
+behavior. First I’ll inspect the current Playwright setup and route/auth
+structure so the tests fit the project without introducing unnecessary
+tooling.
+
+## Assistant
+
+The existing frontend suite is Playwright-based rather than a unit-test runner,
+and I found one existing admin test that still expects the removed “Is
+superuser?” checkbox. I’ll update that test to the new role selector and add
+coverage for manager creation plus member redirects from `/admin` and
+`/metrics`.
+
+## Assistant
+
+I found unrelated working-tree changes in `.env`, `package-lock.json`, and the
+generated route tree; I’ll leave those untouched. The new test changes are
+isolated to the existing admin spec and a new roles spec, and I’m correcting one
+indentation issue before committing only those test files.
+
+## Assistant
+
+Added and pushed frontend access-control tests in commit `bacb84f`.
+
+Changes:
+
+- Updated `frontend/tests/admin.spec.ts` to test creating a Manager.
+- Added `frontend/tests/roles.spec.ts` verifying Members are redirected from
+  `/admin` and `/metrics`.
+- Left unrelated `.env`, `package-lock.json`, and generated route-tree changes
+  untouched.
+
+These are Playwright frontend integration tests, since the project does not
+currently have a unit-test runner such as Vitest. They were not executed
+because frontend dependencies/browser tooling were unavailable in the current
+environment.
