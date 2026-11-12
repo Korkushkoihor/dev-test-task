@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_layout/admin")({
   component: Admin,
   beforeLoad: async () => {
     const { data: user } = await UsersService.readUserMe()
-    if (!user.is_superuser) {
+    if (user.role !== "admin" && user.role !== "manager" && !user.is_superuser) {
       throw redirect({
         to: "/",
       })
@@ -57,6 +57,7 @@ function UsersTable() {
 }
 
 function Admin() {
+  const { user } = useAuth()
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -66,7 +67,7 @@ function Admin() {
             Manage user accounts and permissions
           </p>
         </div>
-        <AddUser />
+        {(user?.role === "admin" || user?.is_superuser) && <AddUser />}
       </div>
       <UsersTable />
     </div>

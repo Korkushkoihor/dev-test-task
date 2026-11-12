@@ -6,6 +6,7 @@ from sqlmodel import col, delete, func, select
 
 from app import crud
 from app.api.deps import (
+    AdminOrManager,
     CurrentUser,
     SessionDep,
     get_current_active_superuser,
@@ -23,6 +24,7 @@ from app.models import (
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
+    UserRole,
 )
 from app.utils import generate_new_account_email, send_email
 
@@ -31,10 +33,9 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get(
     "/",
-    dependencies=[Depends(get_current_active_superuser)],
     response_model=UsersPublic,
 )
-def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
+def read_users(session: SessionDep, _: AdminOrManager, skip: int = 0, limit: int = 100) -> Any:
     """
     Retrieve users.
     """
@@ -134,7 +135,7 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     """
     Delete own user.
     """
-    if current_user.is_superuser:
+    if current_user.is_superuser or current_user.role == UserRole.ADMIN:
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
@@ -169,7 +170,7 @@ def read_user_by_id(
     user = session.get(User, user_id)
     if user == current_user:
         return user
-    if not current_user.is_superuser:
+    if current_user.role not in (UserRole.ADMIN, UserRole.MANAGER) and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="The user doesn't have enough privileges",

@@ -7,6 +7,15 @@
 
 ## Local Development
 
+### Role-based access
+
+The initial user configured by `FIRST_SUPERUSER` is an `admin`. Admins can create
+and assign `admin`, `manager`, or `member` roles from the Users page. Managers
+can view Users and Metrics but cannot change access. Members can only manage
+their own profile. Existing users are backfilled as admins when
+`7f2b1f3a9c4d_add_user_roles` runs if they were superusers, otherwise as
+members.
+
 Run the backend locally and connect it to PostgreSQL in Docker Compose.
 
 From the project root, start PostgreSQL and Mailpit:
